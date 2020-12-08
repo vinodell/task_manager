@@ -5,10 +5,13 @@ import bodyParser from 'body-parser'
 import sockjs from 'sockjs'
 import { renderToStaticNodeStream } from 'react-dom/server'
 import React from 'react'
+import { nanoid } from 'nanoid'
 
 import cookieParser from 'cookie-parser'
 import config from './config'
 import Html from '../client/html'
+
+const { readFile, writeFile } = require('fs').promises
 
 const Root = () => ''
 
@@ -26,6 +29,20 @@ try {
   console.log(' run yarn build:prod to enable ssr')
 }
 
+const taskExample =
+{
+      taskId: '',
+      title: '',
+      _isDeleted: false,
+      _createdAt: 0,
+      _deletedAt: 0,
+      status: 'new'
+}
+
+const toWriteFile = (fileData, category) => {
+  writeFile(`${__dirname}/tasks/${category}.json`, JSON.stringify(fileData), { encoding: 'utf8' })
+}
+
 let connections = []
 
 const port = process.env.PORT || 8090
@@ -40,6 +57,25 @@ const middleware = [
 ]
 
 middleware.forEach((it) => server.use(it))
+
+server.post('/api/v1/tasks/:category', async(req, res) => {
+  const { category } = req.params
+  const { title } = req.body
+  const newTask = {
+    ...taskExample,
+      taskId: nanoid(),
+      title,
+      _createdAt: +new Date()
+    }
+  const taskList = await readFile(`${__dirname}/tasks/${category}.json`, { encoding: 'utf8' })
+  .then((file) => JSON.parse(file))
+  .catch( async() => {
+    await toWriteFile([newTask], category)
+    res.json([newTask])
+  })
+  toWriteFile([...taskList, newTask], category)
+  res.json(...taskList, newTask)
+})
 
 server.use('/api/', (req, res) => {
   res.status(404)
