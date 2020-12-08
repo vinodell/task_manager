@@ -29,14 +29,13 @@ try {
   console.log(' run yarn build:prod to enable ssr')
 }
 
-const taskExample =
-{
-      taskId: '',
-      title: '',
-      _isDeleted: false,
-      _createdAt: 0,
-      _deletedAt: 0,
-      status: 'new'
+const taskExample = {
+  taskId: '',
+  title: '',
+  _isDeleted: false,
+  _createdAt: 0,
+  _deletedAt: 0,
+  status: 'new'
 }
 
 const toWriteFile = (fileData, category) => {
@@ -58,23 +57,64 @@ const middleware = [
 
 middleware.forEach((it) => server.use(it))
 
-server.post('/api/v1/tasks/:category', async(req, res) => {
+// server.post('/api/v1/tasks/:category', async (req, res) => {
+//   const { category } = req.params
+//   const { title } = req.body
+//   const newTask = {
+//     ...taskExample,
+//     taskId: nanoid(),
+//     title,
+//     _createdAt: +new Date()
+//   }
+//   const taskList = await readFile(`${__dirname}/tasks/${category}.json`, { encoding: 'utf8' })
+//     .then((file) => {
+//       const list = [...JSON.parse(file), newTask]
+//       toWriteFile(list, category)
+//       return list
+//     })
+//     .catch(async () => {
+//       await toWriteFile([newTask], category)
+//       return([newTask])
+//     })
+//   res.json(taskList)
+// })
+
+server.post('/api/v1/tasks/:category', async (req, res) => {
   const { category } = req.params
   const { title } = req.body
   const newTask = {
     ...taskExample,
-      taskId: nanoid(),
-      title,
-      _createdAt: +new Date()
-    }
+    taskId: nanoid(),
+    title,
+    _createdAt: +new Date()
+  }
   const taskList = await readFile(`${__dirname}/tasks/${category}.json`, { encoding: 'utf8' })
-  .then((file) => JSON.parse(file))
-  .catch( async() => {
-    await toWriteFile([newTask], category)
-    res.json([newTask])
-  })
-  toWriteFile([...taskList, newTask], category)
-  res.json(...taskList, newTask)
+    .then((file) => [...JSON.parse(file), newTask])
+    .catch(async () => {
+      await toWriteFile([newTask], category)
+      res.json([newTask])
+    })
+  toWriteFile(taskList, category)
+  res.json(taskList)
+})
+
+server.get('/api/v1/tasks/:category', async (req, res) => {
+  const { category } = req.params
+  const filterTask = await readFile(`${__dirname}/tasks/${category}.json`, { encoding: 'utf8' })
+    .then((task) =>
+      JSON.parse(task)
+        .filter((it) => !it._isDeleted)
+        .map((obj) => {
+          return Object.keys(obj).reduce((acc, rec) => {
+            if (rec[0] !== '_') {
+              return { ...acc, [rec]: obj[rec] }
+            }
+            return acc
+          }, {})
+        })
+    )
+    .catch(() => ['no category'])
+  res.json(filterTask)
 })
 
 server.use('/api/', (req, res) => {
