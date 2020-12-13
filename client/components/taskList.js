@@ -20,7 +20,7 @@ const TaskList = () => {
       <div className="flex items-center justify-center h-screen">
         <div className="bg-tean-800 hover:text-red-500 text-black font-bold rounded-lg border shadow-lg p-10">
           {taskList.map((item) => (
-            <TaskComponent task={item} key={item.taskId} />
+            <TaskComponent task={item} key={item.taskId} category={category} />
           ))}
           <button type="button" onClick={() => dispatch(updateTask())}>
             add

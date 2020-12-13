@@ -1,12 +1,48 @@
 import React from 'react'
+import { useDispatch } from 'react-redux'
+
+import { changeStatus } from '../redux/reducers/task'
 
 const TaskComponent = (props) => {
-  const { task } = props
+  const dispatch = useDispatch()
+  const { task, category } = props
+  let status
+  switch (task.status) {
+    case 'new':
+    case 'done': {
+      status = 'in progress'
+      break
+    }
+    case 'in progress':
+    case 'blocked':
+       {
+      status = 'done'
+      break
+    }
+    default:
+      status = 'in progress'
+  }
+  const blocked = task.status === 'blocked' ? 'in progress' : 'blocked'
+
   return (
-    <div className="flex text-gray-700">
+    <div className="text-gray-700">
       <div>{task.title}</div>
       <div>{task.status}</div>
-  <button type="button">{task.status}</button>
+      <button
+        type="button"
+        className="border rounded"
+        onClick={() => dispatch(changeStatus(category, task.taskId, status))}
+      >
+        {status}
+      </button>
+      {(task.status === 'in progress' || task.status === 'blocked') && (
+        <button
+          type="button"
+          onClick={() => dispatch(changeStatus(category, task.taskId, blocked))}
+        >
+          {blocked}
+        </button>
+      )}
     </div>
   )
 }
