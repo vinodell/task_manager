@@ -3,8 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 
 import Head from './head'
+import NewTask from './newTask'
 import TaskComponent from './taskComponent'
-import { getTasks, updateTask } from '../redux/reducers/task'
+import { getTasks } from '../redux/reducers/task'
 
 const TaskList = () => {
   const dispatch = useDispatch()
@@ -22,9 +23,7 @@ const TaskList = () => {
           {taskList.map((item) => (
             <TaskComponent task={item} key={item.taskId} category={category} />
           ))}
-          <button type="button" onClick={() => dispatch(updateTask())}>
-            add
-          </button>
+          <NewTask />
         </div>
       </div>
     </div>

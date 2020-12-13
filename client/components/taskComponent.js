@@ -14,8 +14,7 @@ const TaskComponent = (props) => {
       break
     }
     case 'in progress':
-    case 'blocked':
-       {
+    case 'blocked': {
       status = 'done'
       break
     }
@@ -49,4 +48,4 @@ const TaskComponent = (props) => {
 
 TaskComponent.propTypes = {}
 
-export default React.memo(TaskComponent)
+export default React.memo(TaskComponent)  

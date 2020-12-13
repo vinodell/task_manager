@@ -3,6 +3,7 @@ import axios from 'axios'
 const GET_TASKS = 'GET_TASKS'
 const UPDATE_TASK = 'UPDATE_TASK'
 const CHANGE_STATUS = 'CHANGE_STATUS'
+const ADD_TASK = 'ADD_TASK'
 
 const initialState = {
   taskList: []
@@ -26,6 +27,12 @@ export default (state = initialState, action) => {
       return {
         ...state,
         taskList: action.changedStatus
+      }
+    }
+    case ADD_TASK : {
+      return {
+        ...state,
+        taskList: [...state.taskList, action.data]
       }
     }
     default:
@@ -75,6 +82,23 @@ export function changeStatus(category, id, status) {
       data: {
         status
       }
+    })
+  }
+}
+
+export function addTask (category, title) {
+  return (dispatch) => {
+    axios({
+      method: 'post',
+      url: `/api/v1/tasks/${category}`,
+      data: {
+        title
+      }
+    }).then(({ data }) => {
+      dispatch({
+        type: ADD_TASK,
+        data
+      })
     })
   }
 }
