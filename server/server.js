@@ -154,10 +154,10 @@ server.delete('/api/v1/tasks/:category/:id', async (req, res) => {
 
 server.patch('/api/v1/tasks/:category/:id', async (req, res) => {
   const { category, id } = req.params
-  const { status } = req.body
+  const { status, title } = req.body
   const arrayStatus = ['done', 'new', 'in progress', 'blocked']
   const check = arrayStatus.includes(status)
-  if (!check) {
+  if (status && !check) {
     res.status(501)
     res.json({ status: 'error', message: 'incorrect status' })
     res.end()
@@ -165,7 +165,9 @@ server.patch('/api/v1/tasks/:category/:id', async (req, res) => {
   const data = await toReadFile(category)
     .then((file) => {
       return file.map((task) => {
-        return task.taskId === id ? { ...task, status } : task
+        return task.taskId === id
+        ? { ...task, status: status || task.status, title: title || task.title}
+        : task
       })
     })
     .catch(() => {

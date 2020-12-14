@@ -4,6 +4,8 @@ const GET_TASKS = 'GET_TASKS'
 const UPDATE_TASK = 'UPDATE_TASK'
 const CHANGE_STATUS = 'CHANGE_STATUS'
 const ADD_TASK = 'ADD_TASK'
+const CHANGE_TITLE = 'CHANGE_TITLE'
+const GET_TIMESPAN_TASK = 'GET_TIMESPAN_TASK'
 
 const initialState = {
   taskList: []
@@ -29,10 +31,22 @@ export default (state = initialState, action) => {
         taskList: action.changedStatus
       }
     }
-    case ADD_TASK : {
+    case ADD_TASK: {
       return {
         ...state,
-        taskList: [...state.taskList, action.data]
+        taskList: action.data
+      }
+    }
+    case CHANGE_TITLE: {
+      return {
+        ...state,
+        taskList: action.data
+      }
+    }
+    case GET_TIMESPAN_TASK: {
+      return {
+        ...state,
+        taskList: action.data
       }
     }
     default:
@@ -86,7 +100,7 @@ export function changeStatus(category, id, status) {
   }
 }
 
-export function addTask (category, title) {
+export function addTask(category, title) {
   return (dispatch) => {
     axios({
       method: 'post',
@@ -97,6 +111,34 @@ export function addTask (category, title) {
     }).then(({ data }) => {
       dispatch({
         type: ADD_TASK,
+        data
+      })
+    })
+  }
+}
+
+export function changeTitle(category, title, id) {
+  return (dispatch) => {
+    axios({
+      method: 'patch',
+      url: `/api/v1/tasks/${category}/${id}`,
+      data: {
+        title
+      }
+    }).then(({ data }) => {
+      dispatch({
+        type: CHANGE_TITLE,
+        data
+      })
+    })
+  }
+}
+
+export function getTimeSpanTask(category, timespan) {
+  return (dispatch) => {
+    axios(`/api/v1/tasks/${category}/${timespan}`).then(({ data }) => {
+      dispatch({
+        type: GET_TIMESPAN_TASK,
         data
       })
     })
