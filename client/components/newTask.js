@@ -16,7 +16,7 @@ const NewTask = (props) => {
         className="border rounded"
         onClick={() => dispatch(addTask(category, title))}
       >
-        +Add
+        Add
       </button>
     </div>
   )

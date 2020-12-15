@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 
-import { changeStatus, changeTitle } from '../redux/reducers/task'
+import { changeStatus, changeTitle, deleteTask } from '../redux/reducers/task'
 
 const TaskComponent = (props) => {
   const { task, category } = props
@@ -71,6 +71,13 @@ const TaskComponent = (props) => {
           {blocked}
         </button>
       )}
+      <button
+        type="button"
+        className="border rounded"
+        onClick={() => dispatch(deleteTask(category, task.taskId))}
+      >
+        delete
+      </button>
     </div>
   )
 }

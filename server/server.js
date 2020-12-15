@@ -11,7 +11,7 @@ import cookieParser from 'cookie-parser'
 import config from './config'
 import Html from '../client/html'
 
-const { readFile, writeFile } = require('fs').promises
+const { readFile, writeFile, readdir } = require('fs').promises
 
 const Root = () => ''
 
@@ -48,6 +48,10 @@ const toReadFile = (category) => {
   )
 }
 
+const cleanDeletedTasks = (tasks) => {
+  return tasks.filter((task) => !task._isDeleted)
+}
+
 const removeUnderscope = (tasks) => {
   return tasks
     .filter((it) => !it._isDeleted)
@@ -76,6 +80,12 @@ const middleware = [
 
 middleware.forEach((it) => server.use(it))
 
+server.get('/api/v1/categories', async (req, res) => {
+  const data = await readdir(`${__dirname}/tasks`).then((file) => file.map((item) => item.slice(0, -5))
+  )
+  res.json(data)
+})
+
 server.post('/api/v1/tasks/:category', async (req, res) => {
   const { category } = req.params
   const { title } = req.body
@@ -95,7 +105,7 @@ server.post('/api/v1/tasks/:category', async (req, res) => {
       await toWriteFile([newTask], category)
       return [newTask]
     })
-  res.json(taskList)
+  res.json(cleanDeletedTasks(taskList))
 })
 
 server.get('/api/v1/tasks/:category/:timespan', async (req, res) => {
@@ -149,7 +159,7 @@ server.delete('/api/v1/tasks/:category/:id', async (req, res) => {
       res.end()
     })
   toWriteFile(newList, category)
-  res.json(newList)
+  res.json(cleanDeletedTasks(newList))
 })
 
 server.patch('/api/v1/tasks/:category/:id', async (req, res) => {
